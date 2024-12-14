@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 final dio = Dio();
 var jenis_data = [];
 var periode_data = [];
-String urlDomain = "http://192.168.0.21:8000/";
+String urlDomain = "http://192.168.1.2:8000/";
 String urlCreateTask = urlDomain + "api/add_data";
 String url_all_data = urlDomain + "api/get_data";
 
@@ -118,7 +118,8 @@ class _TambahTugasState extends State<TambahTugas> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Konfirmasi'),
-          content: const Text('Apakah Anda yakin ingin menambahkan tugas ini?'),
+          content: const Text(
+              'Apakah anda sudah yakin dan memeriksa detail tugas yang anda buat? Pastikan semuanya sudah benar.'),
           actions: [
             TextButton(
               onPressed: () {
@@ -171,89 +172,145 @@ class _TambahTugasState extends State<TambahTugas> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              DropdownButtonFormField<String>(
-                value: jenisTugas,
-                onChanged: (value) {
-                  setState(() {
-                    jenisTugas = value;
-                  });
-                },
-                items: jenis_data.map<DropdownMenuItem<String>>((item) {
-                  return DropdownMenuItem<String>(
-                    value: item['jenis_id'], // String value
-                    child: Text(item['jenis_nama'] ?? 'Unknown'),
-                  );
-                }).toList(),
-                decoration: const InputDecoration(labelText: "Jenis Tugas"),
-              ),
-              TextField(
-                controller: namaTugasController,
-                decoration: InputDecoration(labelText: "Nama Tugas"),
-              ),
-              TextField(
-                controller: deskripsiTugasController,
-                maxLines: 3,
-                decoration: InputDecoration(labelText: "Deskripsi Tugas"),
-              ),
-              TextField(
-                controller: bobotTugasController,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(labelText: "Bobot Tugas (Jam)"),
-              ),
-              TextField(
-                controller: tenggatWaktuController,
-                decoration: InputDecoration(
-                  labelText: "Tenggat Waktu",
-                  hintText: "Pilih tanggal",
+              Card(
+                margin: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: DropdownButtonFormField<String>(
+                    value: jenisTugas,
+                    onChanged: (value) {
+                      setState(() {
+                        jenisTugas = value;
+                      });
+                    },
+                    items: jenis_data.map<DropdownMenuItem<String>>((item) {
+                      return DropdownMenuItem<String>(
+                        value: item['jenis_id'], // String value
+                        child: Text(item['jenis_nama'] ?? 'Unknown'),
+                      );
+                    }).toList(),
+                    decoration: const InputDecoration(labelText: "Jenis Tugas"),
+                  ),
                 ),
-                readOnly:
-                    true, // Prevents typing in the field, only allow date picking
-                onTap: () async {
-                  // Show date picker when the user taps on the field
-                  DateTime? selectedDate = await showDatePicker(
-                    context: context,
-                    initialDate: DateTime.now(),
-                    firstDate: DateTime(1900), // Set a reasonable first date
-                    lastDate: DateTime(2100), // Set a reasonable last date
-                  );
+              ),
+              Card(
+                margin: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: TextFormField(
+                    controller: namaTugasController,
+                    decoration: InputDecoration(labelText: "Nama Tugas"),
+                  ),
+                ),
+              ),
+              Card(
+                margin: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: TextFormField(
+                    controller: deskripsiTugasController,
+                    maxLines: 3,
+                    decoration: InputDecoration(labelText: "Deskripsi Tugas"),
+                  ),
+                ),
+              ),
+              Card(
+                margin: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: TextFormField(
+                    controller: bobotTugasController,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(labelText: "Bobot Tugas (Jam)"),
+                  ),
+                ),
+              ),
+              Card(
+                margin: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: TextFormField(
+                    controller: tenggatWaktuController,
+                    decoration: InputDecoration(
+                      labelText: "Tenggat Waktu",
+                      hintText: "Pilih tanggal",
+                    ),
+                    readOnly:
+                        true, // Prevents typing in the field, only allow date picking
+                    onTap: () async {
+                      DateTime? selectedDate = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now(),
+                        firstDate: DateTime(1900),
+                        lastDate: DateTime(2100),
+                      );
 
-                  if (selectedDate != null) {
-                    // If a date is selected, format it and set it to the controller
-                    setState(() {
-                      tenggatWaktuController.text = "${selectedDate.toLocal()}"
-                          .split(' ')[0]; // Format as yyyy-mm-dd
-                    });
-                  }
-                },
+                      if (selectedDate != null) {
+                        setState(() {
+                          tenggatWaktuController.text =
+                              "${selectedDate.toLocal()}".split(' ')[0];
+                        });
+                      }
+                    },
+                  ),
+                ),
               ),
-              TextField(
-                controller: kuotaController,
-                decoration: InputDecoration(labelText: "Kuota"),
-                keyboardType: TextInputType.number,
+              Card(
+                margin: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: TextFormField(
+                    controller: kuotaController,
+                    decoration: InputDecoration(labelText: "Kuota"),
+                    keyboardType: TextInputType.number,
+                  ),
+                ),
               ),
-              DropdownButtonFormField<String>(
-                value: periodeTugas,
-                onChanged: (value) {
-                  setState(() {
-                    periodeTugas = value;
-                  });
-                },
-                items: periode_data.map<DropdownMenuItem<String>>((item) {
-                  return DropdownMenuItem<String>(
-                    value: item['periode_id'], // String value
-                    child: Text(item['periode_tahun'] +
-                            " " +
-                            item['periode_semester'] ??
-                        'Unknown'),
-                  );
-                }).toList(),
-                decoration: const InputDecoration(labelText: "Periode Tugas"),
+              Card(
+                margin: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: DropdownButtonFormField<String>(
+                    value: periodeTugas,
+                    onChanged: (value) {
+                      setState(() {
+                        periodeTugas = value;
+                      });
+                    },
+                    items: periode_data.map<DropdownMenuItem<String>>((item) {
+                      return DropdownMenuItem<String>(
+                        value: item['periode_id'],
+                        child: Text(item['periode_tahun'] +
+                                " " +
+                                item['periode_semester'] ??
+                            'Unknown'),
+                      );
+                    }).toList(),
+                    decoration:
+                        const InputDecoration(labelText: "Periode Tugas"),
+                  ),
+                ),
               ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16.0),
+              SizedBox(
+                width: double.infinity, // Tombol memenuhi lebar layar
                 child: ElevatedButton(
                   onPressed: _showConfirmationDialog,
-                  child: const Text('Lanjutkan'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF2C2260), // Warna tombol
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 16.0), // Padding vertikal
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.0), // Border tombol
+                    ),
+                  ),
+                  child: const Text(
+                    'Lanjutkan',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ),
             ],
